@@ -2,6 +2,7 @@
 const express = require('express');
 const noiseRouter = require('./router/noise-router');
 const noiseService = require('./service/noise-service');
+const userRouter = require('./router/user-router');
 
 const app = express();
 
@@ -31,6 +32,7 @@ app.use((req, res, next) => {
 
 // routers 연결
 app.use('/api/noise', noiseRouter);
+app.use('/api/user', userRouter);
 
 // 서버 실행
 app.listen(app.get('port'), () => {
