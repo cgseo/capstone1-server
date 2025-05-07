@@ -28,7 +28,7 @@ exports.deleteUserById = async (id) => {
 
 /* UPDATE */
 // 본인 정보 수정
-exports.updateUserById = async (name, id) => {
-    const result = await userDao.updateUserById(name, id);
+exports.updateUserById = async (id, columnsForUpdate, valuesForUpdate) => {
+    const result = await userDao.updateUserById(id, columnsForUpdate, valuesForUpdate);
     return result;
 };

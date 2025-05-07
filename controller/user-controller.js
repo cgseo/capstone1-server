@@ -51,10 +51,28 @@ exports.deleteUserById = async (req, res) => {
 // 본인 정보 수정
 exports.updateUserById = async (req, res) => {
     try {
+        console.log("body:", req.body);
         const name = req.body.name;
         const id = req.body.id;
         console.log("user_controller-update:", id, name);
-        const result = await userService.getUserById(name, id);
+
+        const columnsForUpdate = [];    // 수정할 칼럼들
+        const valuesForUpdate = [];     // 수정할 칼럼들의 new values
+
+        // 수정할 칼럼 리스트
+        // todo: 만약 ""이나 null값 들어오면 status(400) 보낼건지 아님 걍 undefined랑 같은 취급할 건지
+        if(name !== undefined) {
+            columnsForUpdate.push("`name`=?");
+            valuesForUpdate.push(name);
+        }
+
+        // update할 column X >>> update 하지 않음
+        if(columnsForUpdate.length === 0) {
+            return res.status(400).json({ message: "no need to update"});
+        }
+
+        // update
+        const result = await userService.updateUserById(id, columnsForUpdate, valuesForUpdate);
         res.json(result.changedRows);   // 수정된 경우: 1 / 수정X: 0 반환
     } catch (err) {
         console.error('user-controller-update: ', err.stack);

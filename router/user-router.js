@@ -4,10 +4,10 @@ const router = express.Router();
 
 router.get('/getUserById', userController.getUserById);
 
-router.get('/insertUser', userController.insertUser);
+router.post('/insertUser', userController.insertUser);
 
-router.get('/deleteUserById', userController.deleteUserById);
+router.delete('/deleteUserById', userController.deleteUserById);
 
-router.get('/updateUserById', userController.updateUserById);
+router.patch('/updateUserById', userController.updateUserById);
 
 module.exports = router;

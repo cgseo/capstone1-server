@@ -36,10 +36,12 @@ exports.deleteUserById = async (id) => {
 // 본인 정보 수정: 변경불가능한 정보를 제외한 정보 수정 
 // (변경X정보: id, device_id, create_at)
 // (변경O정보: name)
-exports.updateUserById = async (name, id) => {
-  console.log("user-dao-updateUser:", id, name);
-  const sql = 'UPDATE `users` SET `name`=? WHERE `id`=?';
-  const [results] = await db.execute(sql, [name, id]);
+exports.updateUserById = async (id, columnsForUpdate, valuesForUpdate) => {
+  console.log("user-dao-updateUser:", id);
+  const values = valuesForUpdate;
+  values.push(id);
+  const sql = 'UPDATE `users` SET '+ columnsForUpdate.join(', ') +' WHERE `id`=?';
+  const [results] = await db.execute(sql, values);
 
   return results;
 };
