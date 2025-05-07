@@ -2,7 +2,18 @@
 const userService = require('../service/user-service');
 
 /* SELECT */
-
+// 본인 정보 조회
+exports.getUserById = async (req, res) => {
+    try {
+       const id = req.query.id;
+       console.log("user_controller:", id);
+       const result = await userService.getUserById(id);
+       res.json(result);
+       } catch (err) {
+           console.error('user-controller-getUser: ', err.stack);
+           res.status(500).json({error: 'failed to get user info'});
+       }
+};
 
 /* INSERT */
 // 계정 생성
@@ -19,18 +30,34 @@ exports.insertUser = async (req, res) => {
         console.error('user-controller-insert: ', err.stack);
         res.status(500).json({error: 'failed to insert user'});
     }
-}
+};
 
 /* DELETE */
 // 계정 삭제
-exports.deleteUser = async (req, res) => {
+exports.deleteUserById = async (req, res) => {
     const id = req.query.id;
     try {
-        const result = await userService.deleteUser(id);
+        const result = await userService.deleteUserById(id);
         console.log(`user-controller-delete: ${result.affectedRows}개 삭제`);
         res.json(result.affectedRows);  // 삭제된 행의 수 반환
     } catch (err) {
         console.error('user-controller-delete: ', err.stack);
         res.status(500).json({error: `failed to delete user(id:${id})`});
     }
-}
+};
+
+
+/* UPDATE */
+// 본인 정보 수정
+exports.updateUserById = async (req, res) => {
+    try {
+        const name = req.body.name;
+        const id = req.body.id;
+        console.log("user_controller-update:", id, name);
+        const result = await userService.getUserById(name, id);
+        res.json(result.changedRows);   // 수정된 경우: 1 / 수정X: 0 반환
+    } catch (err) {
+        console.error('user-controller-update: ', err.stack);
+        res.status(500).json({error: 'failed to update user info'});
+    }
+};

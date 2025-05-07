@@ -18,7 +18,7 @@ exports.getNoiseLogsByDate = async (date) => {
   const [results] = await db.execute(sql, [date]);
 
   return results;
-}
+};
 
 // query로 받은 년월(year, month)의 일별 max_db list 전달
 exports.getMaxDecibelsForMonth = async (userId, year, month) => {
@@ -54,11 +54,11 @@ exports.deleteExpiredNoiseLogs = async () => {
   const sql = 'DELETE FROM `noise_log` WHERE `start_time` < DATE_ADD(NOW(), INTERVAL -30 DAY)';
   const [results, fields] = await db.execute(sql, []);
   return results;
-}
+};
 
 // 특정 noiselog 삭제
 exports.deleteNoiseLog = async (id) => {
   const sql = 'DELETE FROM `noise_log` WHERE `id`=?';
   const [results] = await db.execute(sql, [id]);
   return results;
-}
+};
