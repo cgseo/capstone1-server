@@ -1,0 +1,27 @@
+// 라우터 설정
+
+const noiseController = require('../controller/noise-controller');
+const express = require('express');
+const router = express.Router();
+
+router.get('/', noiseController.getNoiseLogByUserId);
+router.get('/byDate', noiseController.getNoiseLogsByDate);
+router.get('/maxDbList', noiseController.getMaxDecibelsForMonth);
+
+
+router.post('/insertNoiseLog', noiseController.insertNoiseLog);
+
+router.delete('/delete', noiseController.deleteNoiseLog);
+
+
+/*Deviceid */
+router.get('/users', noiseController.getUserByDeviceId);
+
+//invite_code 가져오기
+router.get('/group/invite', noiseController.getGroupByInviteCode);
+//name 가져오기
+router.get('/users/name', noiseController.getUserName);
+//그룹가입
+router.post('/groups/join', noiseController.joinGroup);
+
+module.exports = router;
