@@ -156,3 +156,78 @@ exports.deleteNoiseLog = async (req, res) => {
 }
 
 
+// nickname 조회
+exports.checkNickname = async (req, res) => {
+  const { nickname } = req.query; // 
+  try {
+    const exists = await noiseService.checkNickname(nickname);
+    res.status(200).json({ exists });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: '서버 에러' });
+  }
+};
+//그룹가입(invite_code,nickname)
+exports.groupnickname = async (req, res) => {
+    const { invite_code, nickname, user_id } = req.body;
+
+  //  console.log('Received invite_code:', invite_code);  // 디버깅용 로그
+   // console.log('Received nickname:', nickname);        // 디버깅용 로그
+
+    try {
+        // 서비스 호출
+        const result = await noiseService.joinGroupWithNickname(invite_code, nickname, user_id);
+        
+        // 성공 시 응답
+        res.status(200).json(result);
+
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: error.message });
+    }
+};
+
+//퇴실
+exports.groupout = async (req, res) => {
+    const userId = req.query.user_id;
+    const groupId = req.query.group_id;
+
+    try {
+        // 1. 입력 유효성 검사
+        if (!userId || !groupId) {
+            return res.status(400).json({ message: 'user_id와 group_id를 모두 제공해야 합니다.' });
+        }
+
+        // 2. 서비스 함수를 호출하여 그룹 퇴출 로직 처리
+        const result = await noiseService.groupOut(userId, groupId);
+
+        // 3. 성공 응답
+        res.status(200).json({ message: 'Successfully left the group', result });
+    } catch (error) {
+        // 4. 오류 처리
+        console.error(error);
+        res.status(500).json({ message: error.message });
+    }
+};
+
+//isonline
+exports.isonline = async (req, res) => {
+    const userId = req.query.user_id;
+
+    try {
+        // 1. userId 유효성 검사
+        if (!userId) {
+            return res.status(400).json({ message: 'user_id를 제공해야 합니다.' });
+        }
+
+        // 2. 서비스 함수 호출하여 is_online 값 변경
+        const updatedUser = await noiseService.updateIsOnline(userId);
+
+        // 3. 성공 응답
+        res.status(200).json({ message: 'Successfully updated is_online', user: updatedUser });
+    } catch (error) {
+        // 4. 오류 처리
+        console.error(error);
+        res.status(500).json({ message: error.message });
+    }
+};
