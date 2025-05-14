@@ -14,6 +14,7 @@ app.use(express.json());
 // router 연결 제대로 됐는지 확인용 // 나중에 삭제
 app.use((req, res, next) => {
   console.log('요청:', req.method, req.url);
+  console.log('요청 본문:', req.body);
   next();
 });
 

@@ -41,6 +41,78 @@ exports.getMaxDecibelsForMonth = async (req, res) => {
     }
 }
 
+/*device_id 검색*/
+exports.getUserByDeviceId = async (req, res) => {
+    const deviceId = req.query.device_id;
+    console.log("device_id:", deviceId);
+
+    try {
+        const user = await noiseService.getUserByDeviceId(deviceId);  // noiseService 호출
+        if (user) {
+            res.json(user);  // 사용자 정보 반환
+        } else {
+            res.status(404).json({ message: 'User not found' });
+        }
+    } catch (err) {
+        console.error('controller-getUserByDeviceId: ', err.stack);
+        res.status(500).json({ error: 'Failed to get user' });
+    }
+};
+
+/* invite_code로 그룹 조회 */
+exports.getGroupByInviteCode = async (req, res) => {
+    const inviteCode = req.query.invite_code;
+    console.log("invite_code:", inviteCode);
+
+    try {
+        // noiseService.getGroupByInviteCode 호출하여 group 가져오기
+        const group = await noiseService.getGroupByInviteCode(inviteCode);
+        
+        if (group) {
+            // 그룹이 존재하면 group 반환
+            res.json(group);
+        } else {
+            // 그룹이 존재하지 않으면 404 오류 반환
+            res.status(404).json({ exists: false, message: 'Invite code not found' });
+        }
+    } catch (err) {
+        console.error('controller-getGroupByInviteCode: ', err.stack);
+        res.status(500).json({ error: 'Failed to check invite code' });
+    }
+};
+
+/*name 조회*/
+exports.getUserName = async (req, res) => {
+    const name = req.query.name; // 쿼리 파라미터에서 name 받음
+    if (!name) {
+        return res.status(400).json({ success: false, message: "name 쿼리 파라미터가 필요합니다." });
+    }
+
+    try {
+        const user = await noiseService.getUserName(name);
+        if (!user) {
+            return res.status(404).json({ success: false, message: "유저를 찾을 수 없습니다." });
+        }
+        res.json({ success: true, user });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ success: false, message: "서버 오류" });
+    }
+};
+
+// nickname 조회
+exports.checkNickname = async (req, res) => {
+  const { nickname } = req.query; // 
+  try {
+    const exists = await noiseService.checkNickname(nickname);
+    res.status(200).json({ exists });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: '서버 에러' });
+  }
+};
+
+
 /* INSERT */
 exports.insertNoiseLog = async (req, res) => {
     const noiseLevel = req.body.noise_level;
@@ -61,6 +133,49 @@ exports.insertNoiseLog = async (req, res) => {
     }
 }
 
+//그룹가입
+exports.joinGroup = async (req, res) => {
+    try {
+        const { invite_code, name } = req.body;
+
+        if (!invite_code || !name) {
+            return res.status(400).json({ message: "invite_code와 name은 필수입니다." });
+        }
+
+        const result = await noiseService.joinGroup(invite_code, name);
+
+        if (result.success) {
+            return res.status(200).json({ message: "그룹에 성공적으로 가입했습니다." });
+        } else {
+            return res.status(400).json({ message: result.message });
+        }
+    } catch (err) {
+        console.error("joinGroup error:", err);
+        return res.status(500).json({ message: "서버 오류가 발생했습니다." });
+    }
+};
+
+
+//그룹가입(invite_code,nickname)
+exports.groupnickname = async (req, res) => {
+    const { invite_code, nickname, user_id } = req.body;
+
+  //  console.log('Received invite_code:', invite_code);  // 디버깅용 로그
+   // console.log('Received nickname:', nickname);        // 디버깅용 로그
+
+    try {
+        // 서비스 호출
+        const result = await noiseService.joinGroupWithNickname(invite_code, nickname, user_id);
+        
+        // 성공 시 응답
+        res.status(200).json(result);
+
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: error.message });
+    }
+};
+
 /* DELETE */
 exports.deleteNoiseLog = async (req, res) => {
     const id = req.query.id;
@@ -73,3 +188,54 @@ exports.deleteNoiseLog = async (req, res) => {
         res.status(500).json({error: `failed to delete noise log(id:${id})`});
     }
 }
+
+
+
+
+
+//퇴실
+exports.groupout = async (req, res) => {
+    const userId = req.query.user_id;
+    const groupId = req.query.group_id;
+
+    try {
+        // 1. 입력 유효성 검사
+        if (!userId || !groupId) {
+            return res.status(400).json({ message: 'user_id와 group_id를 모두 제공해야 합니다.' });
+        }
+
+        // 2. 서비스 함수를 호출하여 그룹 퇴출 로직 처리
+        const result = await noiseService.groupOut(userId, groupId);
+
+        // 3. 성공 응답
+        res.status(200).json({ message: 'Successfully left the group', result });
+    } catch (error) {
+        // 4. 오류 처리
+        console.error(error);
+        res.status(500).json({ message: error.message });
+    }
+};
+
+/* ALTER */
+
+//isonline
+exports.isonline = async (req, res) => {
+    const userId = req.query.user_id;
+
+    try {
+        // 1. userId 유효성 검사
+        if (!userId) {
+            return res.status(400).json({ message: 'user_id를 제공해야 합니다.' });
+        }
+
+        // 2. 서비스 함수 호출하여 is_online 값 변경
+        const updatedUser = await noiseService.updateIsOnline(userId);
+
+        // 3. 성공 응답
+        res.status(200).json({ message: 'Successfully updated is_online', user: updatedUser });
+    } catch (error) {
+        // 4. 오류 처리
+        console.error(error);
+        res.status(500).json({ message: error.message });
+    }
+};

@@ -31,6 +31,66 @@ exports.getMaxDecibelsForMonth = async (userId, year, month) => {
   return results;
 };
 
+//device_id 받아오기
+exports.getUserByDeviceId = async (deviceId) => {
+  try {
+      const query = 'SELECT * FROM users WHERE device_id = ?';  
+      const [rows] = await db.query(query, [deviceId]);
+      return rows[0];  // 첫 번째 사용자만 반환
+  } catch (err) {
+      console.error('dao-getUserByDeviceId: ', err.stack);
+      throw err;
+  }
+};
+
+// 
+exports.getGroupByInviteCode = async (inviteCode) => {
+  try {
+      console.log(`Querying for invite code: ${inviteCode}`);
+      const query = 'SELECT * FROM grouptb WHERE invite_code = ?';
+      const [rows] = await db.query(query, [inviteCode]);
+
+      // 데이터가 없을 경우
+      if (rows.length === 0) {
+          console.log(`No group found for invite code: ${inviteCode}`);
+          return null; 
+      }
+
+      console.log(`Found group: ${JSON.stringify(rows[0])}`);
+      return rows[0];
+  } catch (err) {
+      console.error('dao-getGroupByInviteCode: ', err.stack);
+      throw err;
+  }
+};
+
+//name 조회
+exports.fetchUserName = async (name) => {
+  const sql = 'SELECT id, name FROM users WHERE name = ?';
+  const [rows] = await db.query(sql, [name]);
+  return rows[0]; 
+};
+
+
+//nickname 조회
+exports.findByNickname = async (nickname) => {
+  const [rows] = await db.query(
+    `SELECT * FROM group_members WHERE nickname = ?`,
+    [nickname] // 
+  );
+  return rows[0] || null; // 해당 nickname이 존재하면 반환
+};
+
+
+//그룹에 가입했는지 확인(중복확인)
+exports.checkGroupMembership = async (group_id, user_id) => {
+  const [rows] = await db.query(
+      "SELECT * FROM group_members WHERE group_id = ? AND user_id = ?",
+      [group_id, user_id]
+  );
+  return rows.length > 0;
+};
+
 /* INSERT */
 // query로 받은 noise_log를 디비에 추가
 exports.insertNoiseLog = async (noiseLevel, logTime, startTime, endTime, location, maxDb, userId) => {
@@ -42,6 +102,39 @@ exports.insertNoiseLog = async (noiseLevel, logTime, startTime, endTime, locatio
   return results;
 };
 
+//그룹에 추가
+exports.addUserToGroup = async (group_id, user_id) => {
+  const now = new Date();
+  await db.query(
+      "INSERT INTO group_members (group_id, user_id, joined_at, is_owner) VALUES (?, ?, ?, ?)",
+      [group_id, user_id, now, false]
+  );
+};
+
+// 그룹에 사용자 추가(nickname 추가)
+exports.addMemberToGroup = async (invite_code, nickname,user_id) => {
+ // console.log('addMemberToGroup 함수가 호출되었습니다.', { invite_code, nickname });
+    try {
+        // 그룹 ID를 초대 코드로 찾기
+        const [rows] = await db.query('SELECT id FROM grouptb WHERE invite_code = ?', [invite_code]);
+        
+        if (!rows || rows.length === 0) {
+            throw new Error('No group found for this invite code');
+        }
+        
+        // 그룹 ID 가져오기
+        const groupId = rows[0].id;
+        
+        // group_members 테이블에 사용자 추가
+        const query = 'INSERT INTO group_members (group_id, nickname,user_id) VALUES (?, ?, ?)';
+        const [result] = await db.query(query, [groupId, nickname, user_id]);
+        
+        return result;  // 추가된 결과 반환
+    } catch (err) {
+        console.error('DAO addMemberToGroup error: ', err.stack);
+        throw err;
+    }
+};
 
 /* DELETE */
 // 저장 시점으로부터 30일이 지난 noise log 삭제
@@ -62,3 +155,49 @@ exports.deleteNoiseLog = async (id) => {
   const [results] = await db.execute(sql, [id]);
   return results;
 }
+
+//퇴실
+exports.removeMemberFromGroup = async (userId, groupId) => {
+    try {
+        const query = 'DELETE FROM group_members WHERE user_id = ? AND group_id = ?';
+        const [result] = await db.query(query, [userId, groupId]);
+        return result;
+    } catch (error) {
+        console.error('DAO removeMemberFromGroup error: ', error.stack);
+        throw error;
+    }
+};
+
+
+/* ALTER */
+
+//isonline
+exports.updateIsOnline = async (userId) => {
+    try {
+        // 1. SQL 쿼리 작성: is_online 값을 반전시키는 쿼리
+        const query = `
+            UPDATE users
+            SET is_online = CASE
+                WHEN is_online = 0 THEN 1
+                ELSE 0
+            END
+            WHERE id = ?
+        `;
+
+        // 2. 쿼리 실행
+        const [result] = await db.query(query, [userId]);
+
+        // 3. 업데이트된 사용자 정보 조회
+        if (result.affectedRows > 0) {
+            const selectQuery = 'SELECT id, is_online FROM users WHERE id = ?';
+            const [users] = await db.query(selectQuery, [userId]);
+            return users[0]; // 업데이트된 사용자 정보 반환
+        } else {
+            return null; // 해당 ID의 사용자가 없는 경우 null 반환
+        }
+    } catch (error) {
+        // 4. 오류 처리
+        console.error('DAO updateIsOnline error: ', error.stack);
+        throw error;
+    }
+};
