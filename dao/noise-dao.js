@@ -72,6 +72,16 @@ exports.fetchUserName = async (name) => {
 };
 
 
+//nickname 조회
+exports.findByNickname = async (nickname) => {
+  const [rows] = await db.query(
+    `SELECT * FROM group_members WHERE nickname = ?`,
+    [nickname] // 
+  );
+  return rows[0] || null; // 해당 nickname이 존재하면 반환
+};
+
+
 //그룹에 가입했는지 확인(중복확인)
 exports.checkGroupMembership = async (group_id, user_id) => {
   const [rows] = await db.query(
@@ -101,42 +111,6 @@ exports.addUserToGroup = async (group_id, user_id) => {
   );
 };
 
-/* DELETE */
-// 저장 시점으로부터 30일이 지난 noise log 삭제
-/* 
- * mysql event scheduler에 event(delete_expired_noise_log) 등록해놓음.
- * (mysql의 event는 꺼져있을 때 event 실행X)
- * 따라서, 아래는 서버 실행 중단 기간동안 삭제되지 않은 expired noise_logs 삭제용
- */
-exports.deleteExpiredNoiseLogs = async () => {
-  const sql = 'DELETE FROM `noise_log` WHERE `start_time` < DATE_ADD(NOW(), INTERVAL -30 DAY)';
-  const [results, fields] = await db.execute(sql, []);
-  return results;
-}
-
-// 특정 noiselog 삭제
-exports.deleteNoiseLog = async (id) => {
-  const sql = 'DELETE FROM `noise_log` WHERE `id`=?';
-  const [results] = await db.execute(sql, [id]);
-  return results;
-}
-
-
-
-
-
-//nickname 조회
-exports.findByNickname = async (nickname) => {
-  const [rows] = await db.query(
-    `SELECT * FROM group_members WHERE nickname = ?`,
-    [nickname] // 
-  );
-  return rows[0] || null; // 해당 nickname이 존재하면 반환
-};
-
-
-
-
 // 그룹에 사용자 추가(nickname 추가)
 exports.addMemberToGroup = async (invite_code, nickname,user_id) => {
  // console.log('addMemberToGroup 함수가 호출되었습니다.', { invite_code, nickname });
@@ -162,7 +136,25 @@ exports.addMemberToGroup = async (invite_code, nickname,user_id) => {
     }
 };
 
+/* DELETE */
+// 저장 시점으로부터 30일이 지난 noise log 삭제
+/* 
+ * mysql event scheduler에 event(delete_expired_noise_log) 등록해놓음.
+ * (mysql의 event는 꺼져있을 때 event 실행X)
+ * 따라서, 아래는 서버 실행 중단 기간동안 삭제되지 않은 expired noise_logs 삭제용
+ */
+exports.deleteExpiredNoiseLogs = async () => {
+  const sql = 'DELETE FROM `noise_log` WHERE `start_time` < DATE_ADD(NOW(), INTERVAL -30 DAY)';
+  const [results, fields] = await db.execute(sql, []);
+  return results;
+}
 
+// 특정 noiselog 삭제
+exports.deleteNoiseLog = async (id) => {
+  const sql = 'DELETE FROM `noise_log` WHERE `id`=?';
+  const [results] = await db.execute(sql, [id]);
+  return results;
+}
 
 //퇴실
 exports.removeMemberFromGroup = async (userId, groupId) => {
@@ -176,6 +168,8 @@ exports.removeMemberFromGroup = async (userId, groupId) => {
     }
 };
 
+
+/* ALTER */
 
 //isonline
 exports.updateIsOnline = async (userId) => {

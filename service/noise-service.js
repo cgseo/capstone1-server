@@ -46,6 +46,12 @@ exports.getUserName = async (name) => {
     return await noiseDao.fetchUserName(name);
 };
 
+//nickname 조회
+exports.checkNickname = async (nickname) => {
+  const member = await noiseDao.findByNickname(nickname);
+  return !!member; // 존재하면 true, 없으면 false
+};
+
 /* INSERT */
 exports.insertNoiseLog = async (noiseLevel, logTime, startTime, endTime, location, maxDb, userId) => {
     const result = await noiseDao.insertNoiseLog(noiseLevel, logTime, startTime, endTime, location, maxDb, userId);
@@ -78,23 +84,6 @@ exports.joinGroup = async (invite_code, name) => {
     }
 };
 
-/* DELETE */
-exports.deleteExpiredNoiseLogs = async () => {
-    // 데이터 처리 
-    const result = await noiseDao.deleteExpiredNoiseLogs();
-    return result;
-}
-
-exports.deleteNoiseLog = async (id) => {
-    const result = await noiseDao.deleteNoiseLog(id);
-    return result;
-}
-
-//nickname 조회
-exports.checkNickname = async (nickname) => {
-  const member = await noiseDao.findByNickname(nickname);
-  return !!member; // 존재하면 true, 없으면 false
-};
 
 // 그룹가입(invite_code, nickname)
 exports.joinGroupWithNickname = async (invite_code, nickname, user_id) => {
@@ -116,9 +105,19 @@ exports.joinGroupWithNickname = async (invite_code, nickname, user_id) => {
     }
 };
 
+/* DELETE */
+exports.deleteExpiredNoiseLogs = async () => {
+    // 데이터 처리 
+    const result = await noiseDao.deleteExpiredNoiseLogs();
+    return result;
+}
 
+exports.deleteNoiseLog = async (id) => {
+    const result = await noiseDao.deleteNoiseLog(id);
+    return result;
+}
 
-// 퇴실실
+// 퇴실
 exports.groupOut = async (userId, groupId) => {
     try {
         // 1. 데이터베이스에서 해당 사용자를 그룹에서 제거
@@ -137,6 +136,7 @@ exports.groupOut = async (userId, groupId) => {
     }
 };
 
+/* ALTER */
 
 //isonline
 exports.updateIsOnline = async (userId) => {

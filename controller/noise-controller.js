@@ -100,6 +100,19 @@ exports.getUserName = async (req, res) => {
     }
 };
 
+// nickname 조회
+exports.checkNickname = async (req, res) => {
+  const { nickname } = req.query; // 
+  try {
+    const exists = await noiseService.checkNickname(nickname);
+    res.status(200).json({ exists });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: '서버 에러' });
+  }
+};
+
+
 /* INSERT */
 exports.insertNoiseLog = async (req, res) => {
     const noiseLevel = req.body.noise_level;
@@ -142,31 +155,7 @@ exports.joinGroup = async (req, res) => {
     }
 };
 
-/* DELETE */
-exports.deleteNoiseLog = async (req, res) => {
-    const id = req.query.id;
-    try {
-        const result = await noiseService.deleteNoiseLog(id);
-        console.log(`controller-delete-log: ${result.affectedRows}개 삭제`);
-        res.json(result.affectedRows);  // 삭제된 행의 수 반환
-    } catch (err) {
-        console.error('controller-deleteNoiseLog: ', err.stack);
-        res.status(500).json({error: `failed to delete noise log(id:${id})`});
-    }
-}
 
-
-// nickname 조회
-exports.checkNickname = async (req, res) => {
-  const { nickname } = req.query; // 
-  try {
-    const exists = await noiseService.checkNickname(nickname);
-    res.status(200).json({ exists });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: '서버 에러' });
-  }
-};
 //그룹가입(invite_code,nickname)
 exports.groupnickname = async (req, res) => {
     const { invite_code, nickname, user_id } = req.body;
@@ -186,6 +175,23 @@ exports.groupnickname = async (req, res) => {
         res.status(500).json({ message: error.message });
     }
 };
+
+/* DELETE */
+exports.deleteNoiseLog = async (req, res) => {
+    const id = req.query.id;
+    try {
+        const result = await noiseService.deleteNoiseLog(id);
+        console.log(`controller-delete-log: ${result.affectedRows}개 삭제`);
+        res.json(result.affectedRows);  // 삭제된 행의 수 반환
+    } catch (err) {
+        console.error('controller-deleteNoiseLog: ', err.stack);
+        res.status(500).json({error: `failed to delete noise log(id:${id})`});
+    }
+}
+
+
+
+
 
 //퇴실
 exports.groupout = async (req, res) => {
@@ -209,6 +215,8 @@ exports.groupout = async (req, res) => {
         res.status(500).json({ message: error.message });
     }
 };
+
+/* ALTER */
 
 //isonline
 exports.isonline = async (req, res) => {
