@@ -28,7 +28,23 @@ exports.deleteUserById = async (id) => {
 
 /* UPDATE */
 // 본인 정보 수정
-exports.updateUserById = async (id, columnsForUpdate, valuesForUpdate) => {
+exports.updateUserById = async (id, name) => {
+    const columnsForUpdate = [];    // 수정할 칼럼들
+    const valuesForUpdate = [];     // 수정할 칼럼들의 new values
+
+    // 수정할 칼럼 리스트
+    if(name !== undefined && name !== null && name !== "") { // name에 빈값 아니면 수정
+        columnsForUpdate.push("`name`=?");
+        valuesForUpdate.push(name);
+    }
+
+    // update할 column X >>> update 하지 않음
+    if(columnsForUpdate.length === 0) {
+        const err = new Error("수정할 사용자정보 없음");
+        err.status = 400;   
+        throw err;
+    }
+
     const result = await userDao.updateUserById(id, columnsForUpdate, valuesForUpdate);
     return result;
 };

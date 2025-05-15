@@ -37,7 +37,6 @@ exports.deleteUserById = async (id) => {
 // (변경X정보: id, device_id, create_at)
 // (변경O정보: name)
 exports.updateUserById = async (id, columnsForUpdate, valuesForUpdate) => {
-  console.log("user-dao-updateUser:", id);
   const values = valuesForUpdate;
   values.push(id);
   const sql = 'UPDATE `users` SET '+ columnsForUpdate.join(', ') +' WHERE `id`=?';

@@ -18,7 +18,6 @@ exports.getUserById = async (req, res) => {
 /* INSERT */
 // 계정 생성
 exports.insertUser = async (req, res) => {
-    const id = req.body.id;
     const name = req.body.name;
     const deviceId = req.body.device_id;
 
@@ -54,25 +53,8 @@ exports.updateUserById = async (req, res) => {
         console.log("body:", req.body);
         const name = req.body.name;
         const id = req.body.id;
-        console.log("user_controller-update:", id, name);
 
-        const columnsForUpdate = [];    // 수정할 칼럼들
-        const valuesForUpdate = [];     // 수정할 칼럼들의 new values
-
-        // 수정할 칼럼 리스트
-        // todo: 만약 ""이나 null값 들어오면 status(400) 보낼건지 아님 걍 undefined랑 같은 취급할 건지
-        if(name !== undefined) {
-            columnsForUpdate.push("`name`=?");
-            valuesForUpdate.push(name);
-        }
-
-        // update할 column X >>> update 하지 않음
-        if(columnsForUpdate.length === 0) {
-            return res.status(400).json({ message: "no need to update"});
-        }
-
-        // update
-        const result = await userService.updateUserById(id, columnsForUpdate, valuesForUpdate);
+        const result = await userService.updateUserById(id, name);
         res.json(result.changedRows);   // 수정된 경우: 1 / 수정X: 0 반환
     } catch (err) {
         console.error('user-controller-update: ', err.stack);
