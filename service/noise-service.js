@@ -20,6 +20,11 @@ exports.getMaxDecibelsForMonth = async (userId, year, month) => {
     return result;
 };
 
+exports.getNoiseLogsByGroupId = async (groupId) => {
+    const result = await noiseDao.getNoiseLogsByGroupId(groupId);
+    return result;
+}
+
 /* INSERT */
 exports.insertNoiseLog = async (noiseLevel, logTime, startTime, endTime, location, maxDb, userId) => {
     const result = await noiseDao.insertNoiseLog(noiseLevel, logTime, startTime, endTime, location, maxDb, userId);

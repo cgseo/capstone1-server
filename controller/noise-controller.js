@@ -41,6 +41,18 @@ exports.getMaxDecibelsForMonth = async (req, res) => {
     }
 };
 
+exports.getNoiseLogsByGroupId = async (req, res) => {
+    const groupId = req.query.groupId;
+
+    try {
+        const result = await noiseService.getNoiseLogsByGroupId(groupId);
+        res.json(result);
+    } catch (err) { 
+        console.error('controller-noises_group: ', err.stack);
+        res.status(500).json({error: err.message});
+    }
+}
+
 /* INSERT */
 exports.insertNoiseLog = async (req, res) => {
     const noiseLevel = req.body.noise_level;

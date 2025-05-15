@@ -31,6 +31,15 @@ exports.getMaxDecibelsForMonth = async (userId, year, month) => {
   return results;
 };
 
+// 특정 그룹에 속한 그룹원들의 최근 30분 이내 기록된 noise_log list 조회
+exports.getNoiseLogsByGroupId = async (groupId) => {
+  const sql = 'SELECT `noise_log`.* FROM `group_members` INNER JOIN `noise_log` ' 
+          + 'ON `group_members`.`user_id` = `noise_log`.`user_id` '
+          + ' WHERE `group_id`=? AND `end_time` >= DATE_ADD(NOW(), INTERVAL -30 MINUTE)';
+  const [results] = await db.execute(sql, [groupId]);
+  return results;
+};
+
 /* INSERT */
 // query로 받은 noise_log를 디비에 추가
 exports.insertNoiseLog = async (noiseLevel, logTime, startTime, endTime, location, maxDb, userId) => {
