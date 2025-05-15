@@ -28,7 +28,7 @@ exports.deleteUserById = async (id) => {
 
 /* UPDATE */
 // 본인 정보 수정
-exports.updateUserById = async (id, name) => {
+exports.updateUserById = async (id, name, isOnline) => {
     const columnsForUpdate = [];    // 수정할 칼럼들
     const valuesForUpdate = [];     // 수정할 칼럼들의 new values
 
@@ -36,6 +36,10 @@ exports.updateUserById = async (id, name) => {
     if(name !== undefined && name !== null && name !== "") { // name에 빈값 아니면 수정
         columnsForUpdate.push("`name`=?");
         valuesForUpdate.push(name);
+    }
+    if(isOnline !== undefined && isOnline !== null && isOnline !== "") { // name에 빈값 아니면 수정
+        columnsForUpdate.push("`is_online`=?");
+        valuesForUpdate.push(isOnline);
     }
 
     // update할 column X >>> update 하지 않음

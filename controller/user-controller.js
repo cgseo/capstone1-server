@@ -53,8 +53,9 @@ exports.updateUserById = async (req, res) => {
         console.log("body:", req.body);
         const name = req.body.name;
         const id = req.body.id;
+        const isOnline = req.body.is_online;
 
-        const result = await userService.updateUserById(id, name);
+        const result = await userService.updateUserById(id, name, isOnline);
         res.json(result.changedRows);   // 수정된 경우: 1 / 수정X: 0 반환
     } catch (err) {
         console.error('user-controller-update: ', err.stack);
