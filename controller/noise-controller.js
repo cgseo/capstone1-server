@@ -26,7 +26,7 @@ exports.getNoiseLogsByDate = async (req, res) => {
         console.error('controller-selectedDate: ', err.stack);
         res.status(500).json({err: 'failed to get noises'});
     }
-}
+};
 
 exports.getMaxDecibelsForMonth = async (req, res) => {
     const userId = req.query.userId;
@@ -38,6 +38,18 @@ exports.getMaxDecibelsForMonth = async (req, res) => {
     } catch (err) {
         console.error('controller-getMax_err: ', err.stack);
         res.status(500).json({error: 'failed to get max_db list'});
+    }
+};
+
+exports.getNoiseLogsByGroupId = async (req, res) => {
+    const groupId = req.query.groupId;
+
+    try {
+        const result = await noiseService.getNoiseLogsByGroupId(groupId);
+        res.json(result);
+    } catch (err) { 
+        console.error('controller-noises_group: ', err.stack);
+        res.status(500).json({error: err.message});
     }
 }
 
@@ -131,7 +143,7 @@ exports.insertNoiseLog = async (req, res) => {
         console.error('controller-insertNoise: ', err.stack);
         res.status(500).json({error: 'failed to get max_db list'});
     }
-}
+};
 
 //그룹가입
 exports.joinGroup = async (req, res) => {
@@ -187,7 +199,7 @@ exports.deleteNoiseLog = async (req, res) => {
         console.error('controller-deleteNoiseLog: ', err.stack);
         res.status(500).json({error: `failed to delete noise log(id:${id})`});
     }
-}
+};
 
 
 

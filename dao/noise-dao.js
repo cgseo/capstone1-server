@@ -18,7 +18,7 @@ exports.getNoiseLogsByDate = async (date) => {
   const [results] = await db.execute(sql, [date]);
 
   return results;
-}
+};
 
 // query로 받은 년월(year, month)의 일별 max_db list 전달
 exports.getMaxDecibelsForMonth = async (userId, year, month) => {
@@ -28,6 +28,15 @@ exports.getMaxDecibelsForMonth = async (userId, year, month) => {
                       + 'GROUP BY DATE(`start_time`) ORDER BY DATE(`start_time`)';
   const [results] = await db.execute(sql, [userId, year, month]);
 
+  return results;
+};
+
+// 특정 그룹에 속한 그룹원들의 최근 30분 이내 기록된 noise_log list 조회
+exports.getNoiseLogsByGroupId = async (groupId) => {
+  const sql = 'SELECT `noise_log`.* FROM `group_members` INNER JOIN `noise_log` ' 
+          + 'ON `group_members`.`user_id` = `noise_log`.`user_id` '
+          + ' WHERE `group_id`=? AND `end_time` >= DATE_ADD(NOW(), INTERVAL -30 MINUTE)';
+  const [results] = await db.execute(sql, [groupId]);
   return results;
 };
 
@@ -147,14 +156,14 @@ exports.deleteExpiredNoiseLogs = async () => {
   const sql = 'DELETE FROM `noise_log` WHERE `start_time` < DATE_ADD(NOW(), INTERVAL -30 DAY)';
   const [results, fields] = await db.execute(sql, []);
   return results;
-}
+};
 
 // 특정 noiselog 삭제
 exports.deleteNoiseLog = async (id) => {
   const sql = 'DELETE FROM `noise_log` WHERE `id`=?';
   const [results] = await db.execute(sql, [id]);
   return results;
-}
+};
 
 //퇴실
 exports.removeMemberFromGroup = async (userId, groupId) => {
