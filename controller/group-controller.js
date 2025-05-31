@@ -10,7 +10,7 @@ exports.getGroupsByUserId = async (req, res) => {
         const result = await groupService.getGroupsByUserId(userId);
         res.json(result);
     } catch (err) {
-        console.err('controller_groupsByUserId:', err.stack);
+        console.error('controller_groupsByUserId:', err.stack);
         res.status(500).json({error: err.message});
     }
 };
@@ -22,7 +22,7 @@ exports.isOwner = async (req, res) => {
         const result = await groupService.isOwner(userId, groupId);
         res.json(result);
     } catch (err) {
-        console.err('controller_isowner:', err.stack);
+        console.error('controller_isowner:', err.stack);
         res.status(500).json({error: err.message});
     }
 }
