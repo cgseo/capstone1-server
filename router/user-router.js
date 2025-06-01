@@ -3,6 +3,8 @@ const express = require('express');
 const router = express.Router();
 
 router.get('/info', userController.getUserById);
+router.get('/login', userController.login);
+router.get('/checkEmail', userController.checkEmail);
 
 router.post('/signup', userController.signUp);
 

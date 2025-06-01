@@ -3,7 +3,6 @@ const db = require('../config/db');
 /* SELECT */
 // 본인 정보 조회: user의 id로 정보 조회
 exports.getUserById = async (id) => {
-  console.log("user-dao-getUserById:", id);
   const sql = 'SELECT * FROM `users` WHERE `id` = ?';
   const [results] = await db.execute(sql, [id]);
 
@@ -15,7 +14,7 @@ exports.login = async (email, password) => {
   const sql = 'SELECT id FROM `users` WHERE `email` = ? AND `password` = ?';
   const [result] = await db.execute(sql, [email, password]);
 
-  return result;  // id 반환
+  return result;
 };
 
 // email 중복 검사
@@ -23,9 +22,16 @@ exports.checkEmail = async (email) => {
   const sql = 'SELECT * FROM `users` WHERE `email` = ?';
   const [result] = await db.execute(sql, [email]);
 
-  return (result.length > 0); // 입력한 이메일과 일치하는 레코드 존재 시 true 반환
-}
+  return result; 
+};
 
+// 비밀번호 일치 검사
+exports.checkPassword = async (id, password) => {
+  const sql = 'SELECT * FROM `users` WHERE `id` = ? AND `password` = ?';
+  const [result] = await db.execute(sql, [id, password]);
+
+  return result;
+};
 
 /* INSERT */
 // 회원가입: body로 받은 user(email, password)를 디비에 추가
