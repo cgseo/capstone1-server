@@ -9,10 +9,10 @@ exports.getUserById = async (id) => {
   return results;
 };
 
-// 로그인: email, password 일치하는 레코드의 id 반환
-exports.login = async (email, password) => {
-  const sql = 'SELECT id FROM `users` WHERE `email` = ? AND `password` = ?';
-  const [result] = await db.execute(sql, [email, password]);
+// email 일치하는 레코드의 id 반환
+exports.getIdByEmail = async (email) => {
+  const sql = 'SELECT id FROM `users` WHERE `email` = ?';
+  const [result] = await db.execute(sql, [email]);
 
   return result;
 };
@@ -25,10 +25,11 @@ exports.checkEmail = async (email) => {
   return result; 
 };
 
-// 비밀번호 일치 검사
-exports.checkPassword = async (id, password) => {
-  const sql = 'SELECT * FROM `users` WHERE `id` = ? AND `password` = ?';
-  const [result] = await db.execute(sql, [id, password]);
+
+// email로 user의 해시된 비밀번호 가져오기
+exports.getPasswordByEmail = async (email) => {
+  const sql = 'SELECT password FROM `users` WHERE `email` = ?';
+  const [result] = await db.execute(sql, [email]);
 
   return result;
 };
