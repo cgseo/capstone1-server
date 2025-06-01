@@ -1,6 +1,7 @@
 // DAO를 이용해 user-log 데이터 받아옴
 // && 데이터 처리
 
+const e = require('express');
 const userDao = require('../dao/user-dao');
 
 /* SELECT */
@@ -10,14 +11,58 @@ exports.getUserById = async (id) => {
     return result;
 };
 
+// 이메일 중복 검사 
+exports.checkEmail = async (email) => {
+    const result = await userDao.checkEmail(email);
+    return result;
+}
 
 /* INSERT */
-// 계정 생성
-exports.insertUser = async (name, device_id) => {
-    const result = await userDao.insertUser(name, device_id);
+// 회원가입:
+//  이메일 형식 유효성 검사 > 이메일 중복 검사
+//     > 비밀번호 유효성 검사 > 비밀번호 암호화 > DB에 생성
+exports.signUp = async (email, password) => {
+    
+    // 이메일 형식 유효성 검사 
+    if(!validateEmailFormat(email)) {
+        throw new Error("invalid email format");
+    }
+
+    // 이메일 중복 검사
+    const isDuplicateEmail = await userDao.checkEmail(email); // 중복O > true 반환
+    if(isDuplicateEmail) {
+        throw new Error("duplicated email");
+    }
+
+    // 비밀번호 형식 유효성 검사
+    if(!validatePWFormat(password)) {
+        throw new Error("invalid password format");
+    }
+
+    // 비밀번호 암호화  // 로그인 기능 완성 후 추가
+
+
+    const result = await userDao.signUp(email, password);
     return result;
 };
 
+// 이메일 형식 유효성 검사
+function validateEmailFormat(email) {
+    const regexEmail = /^[a-zA-Z0-9._%+-]+@([a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}$/;
+    return regexEmail.test(email);  // 유효한 이메일 형식 > true 반환
+}
+
+// 비밀번호 형식 유효성 검사
+function validatePWFormat(password) {
+    const regexPassword = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d!@#$%^&*]{8,}$/;
+    return regexPassword.test(password);
+}
+
+// 비밀번호 암호화
+function encryptPassword(password) {
+    const encryptedPassword = "";
+    return encryptedPassword;
+}
 
 /* DELETE */
 // 계정 삭제

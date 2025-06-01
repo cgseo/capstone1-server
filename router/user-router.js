@@ -4,7 +4,7 @@ const router = express.Router();
 
 router.get('/info', userController.getUserById);
 
-router.post('/insertUser', userController.insertUser);
+router.post('/signup', userController.signUp);
 
 router.delete('/deleteUserById', userController.deleteUserById);
 

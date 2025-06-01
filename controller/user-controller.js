@@ -16,18 +16,19 @@ exports.getUserById = async (req, res) => {
 };
 
 /* INSERT */
-// 계정 생성
-exports.insertUser = async (req, res) => {
-    const name = req.body.name;
-    const deviceId = req.body.device_id;
+// 회원가입
+exports.signUp = async (req, res) => {
+    // const name = req.body.name;
+    const email = req.body.email;
+    const password = req.body.password;
 
-    console.log("user-controller-insert: ", name, deviceId);
     try {
-        const result = await userService.insertUser(name, deviceId);
+        const result = await userService.signUp(email, password);
+        console.log("user-controller-signUp: ", result.insertId, email, password);
         res.json(result.insertId); // db에서 auto_increment로 생성된 id 반환
     } catch (err) {
-        console.error('user-controller-insert: ', err.stack);
-        res.status(500).json({error: 'failed to insert user'});
+        console.error('user-controller-signUp: ', err.stack);
+        res.status(500).json({error: err.message});
     }
 };
 

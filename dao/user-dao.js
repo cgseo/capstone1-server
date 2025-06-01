@@ -10,14 +10,29 @@ exports.getUserById = async (id) => {
   return results;
 };
 
+// 로그인: email, password 일치하는 레코드의 id 반환
+exports.login = async (email, password) => {
+  const sql = 'SELECT id FROM `users` WHERE `email` = ? AND `password` = ?';
+  const [result] = await db.execute(sql, [email, password]);
+
+  return result;  // id 반환
+};
+
+// email 중복 검사
+exports.checkEmail = async (email) => {
+  const sql = 'SELECT * FROM `users` WHERE `email` = ?';
+  const [result] = await db.execute(sql, [email]);
+
+  return (result.length > 0); // 입력한 이메일과 일치하는 레코드 존재 시 true 반환
+}
+
 
 /* INSERT */
-// 계정생성: query로 받은 user를 디비에 추가
-exports.insertUser = async (name, device_id) => {
-  console.log("user-dao-insert:", name);
-  const sql = 'INSERT INTO `users` (`name`, `device_id`) '
-                            + 'VALUES(?, ?)';
-  const [results] = await db.execute(sql, [name, device_id]);
+// 회원가입: body로 받은 user(email, password)를 디비에 추가
+exports.signUp = async (email, password) => {
+  const sql = 'INSERT INTO `users` (`email`, `password`, `is_online`) '
+                            + 'VALUES(?, ?, ?)';
+  const [results] = await db.execute(sql, [email, password, 1]);
   
   return results;
 };
