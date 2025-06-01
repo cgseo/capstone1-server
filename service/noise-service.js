@@ -10,8 +10,8 @@ exports.getNoiseByUserId = async (userId) => {
     return result;
 };
 
-exports.getNoiseLogsByDate = async (date) => {
-    const result = await noiseDao.getNoiseLogsByDate(date);
+exports.getNoiseLogsByDate = async (userId, date) => {
+    const result = await noiseDao.getNoiseLogsByDate(userId, date);
     return result;
 };
 
@@ -60,7 +60,7 @@ exports.checkNickname = async (nickname) => {
 /* INSERT */
 exports.insertNoiseLog = async (noiseLevel, logTime, startTime, endTime, location, maxDb, userId) => {
     const result = await noiseDao.insertNoiseLog(noiseLevel, logTime, startTime, endTime, location, maxDb, userId);
-    return result;
+    return result.insertId; // 추가된 noise log의 id 반환
 };
 
 //그룹가입
@@ -119,7 +119,7 @@ exports.deleteExpiredNoiseLogs = async () => {
 
 exports.deleteNoiseLog = async (id) => {
     const result = await noiseDao.deleteNoiseLog(id);
-    return result;
+    return result.affectedRows; // 삭제된 행의 개수 반환
 };
 
 // 퇴실

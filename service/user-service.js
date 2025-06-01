@@ -33,10 +33,11 @@ exports.login = async (email, password) => {
 };
 
 // 이메일 중복 검사 
-exports.checkEmail = async function (email) {
+async function checkEmail(email) {
     const result = await userDao.checkEmail(email);
     return (result.length > 0); // 입력한 이메일과 일치하는 레코드 존재 시 true 반환
-};
+}
+exports.checkEmail = checkEmail;
 
 // 비밀번호 일치 검사
 exports.checkPassword = async function (id, password) {
@@ -56,7 +57,7 @@ exports.signUp = async (email, password) => {
     }
 
     // 이메일 중복 검사
-    const isDuplicateEmail = await exports.checkEmail(email); // 중복O > true 반환
+    const isDuplicateEmail = await checkEmail(email); // 중복O > true 반환
     if(isDuplicateEmail) {
         throw new Error("failed to sign up: duplicated email");
     }

@@ -7,13 +7,13 @@ exports.getUserById = async (req, res) => {
     const id = req.query.id;
 
     try {
-       const result = await userService.getUserById(id);
-       console.log("user_controller-info:", id);
-       res.json(result);
-       } catch (err) {
-           console.error('user-controller-getUser: ', err.message);
-           res.status(err.status || 500).json({error: err.message || 'server error: failed to get user info'});
-       }
+        const result = await userService.getUserById(id);
+        console.log("user_controller-info:", id);
+        res.json(result);
+    } catch (err) {
+        console.error('user-controller-getUser: ', err.message);
+        res.status(err.status || 500).json({message: err.message || 'server error: failed to get user info'});
+    }
 };
 
 // 로그인
@@ -27,7 +27,7 @@ exports.login = async (req, res) => {
         res.json(id); // db에서 auto_increment로 생성된 id 반환
     } catch (err) {
         console.error('user-controller-signUp: ', err.stack);
-        res.status(err.status || 500).json({error: err.message || 'server err: failed to login'});
+        res.status(err.status || 500).json({message: err.message || 'server err: failed to login'});
     }
 };
 
@@ -40,7 +40,7 @@ exports.checkEmail = async (req, res) => {
         res.json(isDuplicated); // 중복O: true, X: false
     } catch (err) {
         console.error('user-controller-checkEmailDuplication: ', err.stack);
-        res.status(500).json('server err: failed to check email duplication');
+        res.status(500).json({message: 'server err: failed to check email duplication'});
     }
 }
 
@@ -53,11 +53,11 @@ exports.signUp = async (req, res) => {
 
     try {
         const id = await userService.signUp(email, password);
-        console.log("user-controller-signUp: ", id, email, password);
+        console.log("user-controller-signUp: ", id, email);
         res.json(id); // db에서 auto_increment로 생성된 id 반환
     } catch (err) {
         console.error('user-controller-signUp: ', err.message);
-        res.status(500).json({error: err.message || 'server err: failed to sign up'});
+        res.status(500).json({message: err.message || 'server err: failed to sign up'});
     }
 };
 
@@ -72,7 +72,7 @@ exports.deleteUserById = async (req, res) => {
         res.json(affectedRows);  // 삭제된 행의 수 반환
     } catch (err) {
         console.error('user-controller-delete: ', err.stack);
-        res.status(500).json({error: `failed to delete user(id:${id})`});
+        res.status(500).json({message: `failed to delete user(id:${id})`});
     }
 };
 
@@ -91,6 +91,6 @@ exports.updateUserById = async (req, res) => {
         res.json(changedRows);   // 수정된 경우: 1 / 수정X: 0 반환
     } catch (err) {
         console.error('user-controller-update: ', err.message);
-        res.status(500).json({error: 'failed to update user info'});
+        res.status(500).json({message: 'failed to update user info'});
     }
 };

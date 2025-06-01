@@ -4,27 +4,29 @@ const dayjs = require('dayjs');
 
 /* SELECT */
 exports.getNoiseLogByUserId = async (req, res) => {
-    try {
     const userId = req.query.userId;
-    console.log("noise_controller:", userId);
 
-    const result = await noiseService.getNoiseByUserId(userId);
-    res.json(result);
+    try {
+        const result = await noiseService.getNoiseByUserId(userId);
+        console.log("noise_controller-getNoiseLogByUserId:", userId," length:", result.length);
+        res.json(result);
     } catch (err) {
-        console.error('controller-getNoiseLogByUserId: ', err.stack);
-        res.status(500).json({error: 'failed to get noises'});
+        console.error('noise_controller-getNoiseLogByUserId: ', err.stack);
+        res.status(err.status || 500).json({message: 'failed to get noises'});
     }
 };
 
 exports.getNoiseLogsByDate = async (req, res) => {
+    const userId = req.query.userId;
+    const date = req.query.date;
+
     try {
-        const date = req.query.date;
-        console.log('controller-selectedDate: ', date);
-        const result = await noiseService.getNoiseLogsByDate(date);
+        const result = await noiseService.getNoiseLogsByDate(userId, date);
+        console.log('noise_controller-getNoiseLogsByDate: ', userId, date);
         res.json(result);
     } catch (err) {
-        console.error('controller-selectedDate: ', err.stack);
-        res.status(500).json({err: 'failed to get noises'});
+        console.error('noise_controller-getNoiseLogsByDate: ', err.stack);
+        res.status(err.status || 500).json({message: 'failed to get noises'});
     }
 };
 
@@ -32,12 +34,14 @@ exports.getMaxDecibelsForMonth = async (req, res) => {
     const userId = req.query.userId;
     const year = req.query.year;
     const month = req.query.month;
+
     try {
         const result = await noiseService.getMaxDecibelsForMonth(userId, year, month);
+        console.log('noise_controller-getMaxs: ', year, month);
         res.json(result); 
     } catch (err) {
-        console.error('controller-getMax_err: ', err.stack);
-        res.status(500).json({error: 'failed to get max_db list'});
+        console.error('noise_controller-getMaxs: ', err.stack);
+        res.status(err.status || 500).json({message: 'failed to get max_db list'});
     }
 };
 
@@ -46,10 +50,11 @@ exports.getNoiseLogsByGroupId = async (req, res) => {
 
     try {
         const result = await noiseService.getNoiseLogsByGroupId(groupId);
+        console.log('noise_controller-noises_group: ', groupId);
         res.json(result);
     } catch (err) { 
-        console.error('controller-noises_group: ', err.stack);
-        res.status(500).json({error: err.message});
+        console.error('noise_controller-noises_group: ', err.stack);
+        res.status(err.status || 500).json({message: err.message});
     }
 }
 
@@ -129,7 +134,6 @@ exports.checkNickname = async (req, res) => {
 exports.insertNoiseLog = async (req, res) => {
     const noiseLevel = req.body.noise_level;
     const logTime = req.body.log_time;
-    console.log("logTime: ",logTime);
     const startTime = dayjs(req.body.start_time, 'MMM DD, YYYY hh:mm:ss A').format('YYYY-MM-DD HH:mm:ss');
     const endTime = dayjs(req.body.end_time, 'MMM DD, YYYY hh:mm:ss A').format('YYYY-MM-DD HH:mm:ss');
     const location = req.body.location;
@@ -137,11 +141,12 @@ exports.insertNoiseLog = async (req, res) => {
     const userId = req.body.user_id;
     console.log(noiseLevel, logTime, startTime, endTime, location, maxDb, userId);
     try {
-        const result = await noiseService.insertNoiseLog(noiseLevel, logTime, startTime, endTime, location, maxDb, userId);
-        res.json(result.insertId); 
+        const insertId = await noiseService.insertNoiseLog(noiseLevel, logTime, startTime, endTime, location, maxDb, userId);
+        console.log("noise_controller-insertNoise: ", insertId);
+        res.json(insertId); 
     } catch (err) {
-        console.error('controller-insertNoise: ', err.stack);
-        res.status(500).json({error: 'failed to get max_db list'});
+        console.error('noise_controller-insertNoise: ', err.stack);
+        res.status(err.status || 500).json({message: 'failed to get max_db list'});
     }
 };
 
@@ -189,15 +194,16 @@ exports.groupnickname = async (req, res) => {
 };
 
 /* DELETE */
+// 하나의 noiseLog 삭제 
 exports.deleteNoiseLog = async (req, res) => {
     const id = req.query.id;
     try {
-        const result = await noiseService.deleteNoiseLog(id);
-        console.log(`controller-delete-log: ${result.affectedRows}개 삭제`);
-        res.json(result.affectedRows);  // 삭제된 행의 수 반환
+        const affectedRows = await noiseService.deleteNoiseLog(id);
+        console.log(`noise_controller-deleteNoiseLog: ${affectedRows}개 삭제`);
+        res.json(affectedRows);  // 삭제된 행의 수 반환
     } catch (err) {
-        console.error('controller-deleteNoiseLog: ', err.stack);
-        res.status(500).json({error: `failed to delete noise log(id:${id})`});
+        console.error('noise_controller-deleteNoiseLog: ', err.stack);
+        res.status(err.status || 500).json({message: `failed to delete noise log(id:${id})`});
     }
 };
 

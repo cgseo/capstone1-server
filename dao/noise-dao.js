@@ -4,7 +4,6 @@ const db = require('../config/db');
 /* SELECT */
 // query로 받은 user_id를 가진 유저의 noiselog list 전달
 exports.getNoiseLogByUserId = async (userId) => {
-    console.log("noise-dao-getNoiseLogByUserId:", userId);
     const sql = 'SELECT * FROM `noise_log` WHERE `user_id` = ?';
     const [results] = await db.execute(sql, [userId]);
 
@@ -12,17 +11,15 @@ exports.getNoiseLogByUserId = async (userId) => {
 };
 
 // 특정 날짜의 noise_log list 전달
-exports.getNoiseLogsByDate = async (date) => {
-  console.log('noiseDAO_getlogsBYDate: ', date);
-  const sql = 'SELECT * FROM `noise_log` WHERE DATE(`start_time`) = ?';
-  const [results] = await db.execute(sql, [date]);
+exports.getNoiseLogsByDate = async (userId, date) => {
+  const sql = 'SELECT * FROM `noise_log` WHERE `user_id` = ? AND DATE(`start_time`) = ?';
+  const [results] = await db.execute(sql, [userId, date]);
 
   return results;
 };
 
 // query로 받은 년월(year, month)의 일별 max_db list 전달
 exports.getMaxDecibelsForMonth = async (userId, year, month) => {
-  //console.log("noise-dao-getMaxDecibelsForMonth:", userId);
   const sql = 'SELECT ANY_VALUE(`start_time`) as start_time, max(`max_db`) as max_db FROM `noise_log` '
                       + 'WHERE `user_id` = ? AND YEAR(`start_time`) = ? AND MONTH(`start_time`) = ? '
                       + 'GROUP BY DATE(`start_time`) ORDER BY DATE(`start_time`)';
@@ -114,7 +111,6 @@ exports.checkGroupMembership = async (group_id, user_id) => {
 /* INSERT */
 // query로 받은 noise_log를 디비에 추가
 exports.insertNoiseLog = async (noiseLevel, logTime, startTime, endTime, location, maxDb, userId) => {
-  console.log("noise-dao-insertNoiseLog:", userId);
   const sql = 'INSERT INTO `noise_log` (`noise_level`, `log_time`, `start_time`, `end_time`, `location`, `max_db`, `user_id`) '
                           + 'VALUES(?, ?, ?, ?, ?, ?, ?)';
   const [results] = await db.execute(sql, [noiseLevel, logTime, startTime, endTime, location, maxDb, userId]);

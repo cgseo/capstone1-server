@@ -5,15 +5,19 @@ const groupDao = require('../dao/group-dao');
 const pool = require('../config/db');
 
 /* SELECT */
+// user가 속한 그룹 리스트 
 exports.getGroupsByUserId = async (userId) => {
     const result = await groupDao.getGroupsByUserId(userId);
     return result;
 };
 
-exports.isOwner = async (userId, groupId) => {
+// 그룹 생성자인지 확인
+async function isOwner (userId, groupId) {
     const result = await groupDao.isOwner(userId, groupId);
-    return result;
-};
+    return (result.length > 0 && result[0].is_owner === 1); // 생성자면 true 반환
+}
+exports.isOwner = isOwner;
+
 
 /* INSERT */
 // 그룹 생성
@@ -29,7 +33,7 @@ exports.insertGroup = async (groupName, description, userId, nickname) => {
         }
 
         // 생성한 randomString이 DB에 이미 존재하는지 확인
-        const isDuplicate = await groupDao.isDuplicateInviteCode(randomString);
+        const isDuplicate = await (groupDao.isDuplicateInviteCode(randomString)).length > 0;
         if(isDuplicate) {  // 중복O, 다시 생성
             randomString = "";
         } else {   // 중복X, for문 종료
@@ -54,7 +58,7 @@ exports.insertGroup = async (groupName, description, userId, nickname) => {
         
         await conn.commit();    // 트랜잭션 종료
 
-        return result;
+        return result.insertId; // 생성한 그룹의 id 반환
     } catch (err) {
         await conn.rollback();  // 쿼리 실패 시 롤백
         throw err;
@@ -67,31 +71,16 @@ exports.insertGroup = async (groupName, description, userId, nickname) => {
 /* DELETE */
 // 그룹 삭제
 exports.deleteGroup = async (userId, groupId) => {
-
-    const conn = await pool.getConnection();    // db 연결 객체 생성
-    try {
-        await conn.beginTransaction(); // 트랜잭션 시작
-        
-        // 삭제하려는 사용자가 그룹의 owner인지 확인
-        const isOwner = await groupDao.isOwner(userId, groupId);
-        if(!isOwner) {  // owner가 아님
-            const err = new Error("그룹 삭제 권한 없음");
-            err.status = 403;   // 리소스 액세스 권한 X
-            throw err;
-        }
-
-        // 그룹 삭제
-        const result = await groupDao.deleteGroup(groupId);
-        
-        await conn.commit();    // 트랜잭션 종료
-
-        return result;
-    } catch (err) {
-        await conn.rollback();  // 쿼리 실패 시 롤백
+    // 삭제하려는 사용자가 그룹의 owner인지 확인
+    const isOwnerResult = await isOwner(userId, groupId);
+    if(!isOwnerResult) {  // owner가 아님
+        const err = new Error("그룹 삭제 권한 없음");
+        err.status = 403;   // 리소스 액세스 권한 X
         throw err;
-    } finally {
-        conn.release(); // 커넥션 반환
     }
+
+    const result = await groupDao.deleteGroup(groupId);
+    return result.affectedRows; // 삭제한 행의 수 반환
 };
 
 /* UPDATE */
@@ -113,12 +102,10 @@ exports.updateGroupInfo = async (id, groupName, description) => {
 
     //update할 column 없음 > update 안함
     if(columnsForUpdate.length === 0) {
-        const err = new Error("수정할 그룹정보 없음");
-        err.status = 400;   
-        throw err;
+        return 0
     }
 
     //update
     const result = await groupDao.updateGroupInfo(id, columnsForUpdate, valuesForUpdate);
-    return result;
+    return result.changedRows;  // 수정된 행의 개수 반환
 };

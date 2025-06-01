@@ -21,7 +21,7 @@ exports.isDuplicateInviteCode = async (inviteCode) => {
     const sql = 'SELECT `invite_code` FROM `grouptb` WHERE `invite_code` = ?';
     const [results] = await db.execute(sql, [inviteCode]);
 
-    return (results.length > 0);
+    return results;
 }
 
 // 사용자가 그룹의 owner인지
@@ -29,7 +29,7 @@ exports.isOwner = async (userId, groupId) => {
     const sql = 'SELECT `is_owner` FROM `group_members` WHERE `user_id`=? AND `group_id`=?';
     const [results] = await db.execute(sql, [userId, groupId]);
 
-    return (results.length > 0 && results[0].is_owner === 1);
+    return results;
 }
 
 /* INSERT */
