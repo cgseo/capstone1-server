@@ -32,7 +32,7 @@ exports.login = async (req, res) => {
 };
 
 exports.checkEmail = async (req, res) => {
-    const email = req.body.email;
+    const email = req.query.email;
 
     try {
         const isDuplicated = await userService.checkEmail(email);
