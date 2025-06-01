@@ -56,7 +56,7 @@ exports.signUp = async (req, res) => {
         console.log("user-controller-signUp: ", id, email);
         res.json(id); // db에서 auto_increment로 생성된 id 반환
     } catch (err) {
-        console.error('user-controller-signUp: ', err.message);
+        console.error('user-controller-signUp: ', err.stack);
         res.status(500).json({message: err.message || 'server err: failed to sign up'});
     }
 };
