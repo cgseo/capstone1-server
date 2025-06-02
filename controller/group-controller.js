@@ -17,6 +17,20 @@ exports.getGroupsByUserId = async (req, res) => {
     }
 };
 
+// group의 id로 특정 그룹 info 조회
+exports.getGroupInfo = async (req, res) => {
+    const id = req.query.id;
+
+    try {
+        const result = await groupService.getGroupInfo(id);
+        console.log("group_controller-info: ", result.group_name);
+        res.json(result);
+    } catch (err) {
+        console.error("group_controller-info: ", err.stack);
+        res.status(err.status || 500).json({message: err.message});
+    }
+};
+
 exports.isOwner = async (req, res) => {
     const userId = req.query.userId;
     const groupId = req.query.groupId;

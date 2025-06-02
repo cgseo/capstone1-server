@@ -11,6 +11,19 @@ exports.getGroupsByUserId = async (userId) => {
     return result;
 };
 
+// group의 id로 특정 그룹 info 조회
+exports.getGroupInfo = async (id) => {
+    const result = await groupDao.getGroupInfo(id);
+
+    if (result.length === 0) {  // id와 일치하는 그룹 없음
+        const err = new Error("group not found");
+        err.status = 404;
+        throw err;
+    }
+
+    return result[0];
+};
+
 // 그룹 생성자인지 확인
 async function isOwner (userId, groupId) {
     const result = await groupDao.isOwner(userId, groupId);

@@ -11,6 +11,15 @@ exports.getGroupsByUserId = async (userId) => {
     return results;
 };
 
+// group의 id로 특정 그룹 info 조회
+exports.getGroupInfo = async (id) => {
+    const sql = 'SELECT * FROM `grouptb` WHERE `id` = ?';
+    const [result] = await db.execute(sql, [id]);
+
+    return result;
+};
+
+
 // 본인이 생성한 그룹 조회  ** is_owner == 1인 그룹만 조회
 exports.getOwnedGroupsByUserId = async (userId) => {
 
