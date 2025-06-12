@@ -32,9 +32,16 @@ async function isOwner (userId, groupId) {
 exports.isOwner = isOwner;
 
 
+// 연결된 wifi의 bssid로 가입한 그룹의 아이디 반환
+exports.getGroupIdByWifi = async (userId, wifiBssid) => {
+    const result = await groupDao.getGroupIdByWifi(userId, wifiBssid);
+    
+    return result[0];
+};
+
 /* INSERT */
 // 그룹 생성
-exports.insertGroup = async (groupName, description, userId, nickname) => {
+exports.insertGroup = async (groupName, description, userId, nickname, wifiBssid) => {
     /* inviteCode 생성 */
     let randomString = "";
     for(let i=0; i<10; i++){    // 무한루프를 피하기위해 반복횟수 제한
@@ -67,7 +74,7 @@ exports.insertGroup = async (groupName, description, userId, nickname) => {
         // 그룹 생성
         const result = await groupDao.insertGroup(groupName, description, randomString);
         // group_members 레코드 생성
-        await groupDao.insertGroupMember(result.insertId, userId, nickname, 1);
+        await groupDao.insertGroupMember(result.insertId, userId, nickname, 1, wifiBssid.toUpperCase());
         
         await conn.commit();    // 트랜잭션 종료
 

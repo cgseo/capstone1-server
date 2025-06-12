@@ -139,9 +139,11 @@ exports.insertNoiseLog = async (req, res) => {
     const location = req.body.location;
     const maxDb = req.body.max_db;
     const userId = req.body.user_id;
-    console.log(noiseLevel, logTime, startTime, endTime, location, maxDb, userId);
+    const groupId = req.body.group_id;
+
+    console.log(noiseLevel, logTime, startTime, endTime, location, maxDb, userId, groupId);
     try {
-        const insertId = await noiseService.insertNoiseLog(noiseLevel, logTime, startTime, endTime, location, maxDb, userId);
+        const insertId = await noiseService.insertNoiseLog(noiseLevel, logTime, startTime, endTime, location, maxDb, userId, groupId);
         console.log("noise_controller-insertNoise: ", insertId);
         res.json(insertId); 
     } catch (err) {

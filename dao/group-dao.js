@@ -41,6 +41,14 @@ exports.isOwner = async (userId, groupId) => {
     return results;
 }
 
+// 연결된 wifi의 bssid로 가입한 그룹의 아이디 반환
+exports.getGroupIdByWifi = async (userId, wifiBssid) => {
+    const sql = 'SELECT `group_id` FROM `group_members` WHERE `user_id`=? AND `wifi_bssid`=?';
+    const [results] = await db.execute(sql, [userId, wifiBssid]);
+
+    return results;
+};
+
 /* INSERT */
 // 그룹 생성    ** 그룹 생성자가 owner로 자동지정
 exports.insertGroup = async (groupName, description, inviteCode) => {
@@ -52,10 +60,10 @@ exports.insertGroup = async (groupName, description, inviteCode) => {
 };
 
 // group_memebers 레코드 생성
-exports.insertGroupMember = async (groupId, userId, nickname, isOwner) => {
-    const sql = 'INSERT INTO `group_members` (`group_id`, `user_id`, `nickname`, `is_owner`) '
-                + 'VALUES(?, ?, ?, ?)';
-    const [results] = await db.execute(sql, [groupId, userId, nickname, isOwner]);
+exports.insertGroupMember = async (groupId, userId, nickname, isOwner, wifi_bssid) => {
+    const sql = 'INSERT INTO `group_members` (`group_id`, `user_id`, `nickname`, `is_owner`, `wifi_bssid`) '
+                + 'VALUES(?, ?, ?, ?, ?)';
+    const [results] = await db.execute(sql, [groupId, userId, nickname, isOwner, wifi_bssid]);
 
     return results;
 };

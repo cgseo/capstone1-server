@@ -58,8 +58,10 @@ exports.checkNickname = async (nickname) => {
 };
 
 /* INSERT */
-exports.insertNoiseLog = async (noiseLevel, logTime, startTime, endTime, location, maxDb, userId) => {
-    const result = await noiseDao.insertNoiseLog(noiseLevel, logTime, startTime, endTime, location, maxDb, userId);
+exports.insertNoiseLog = async (noiseLevel, logTime, startTime, endTime, location, maxDb, userId, groupId) => {
+    const safeUserId = userId !== undefined ? userId : null;
+    const safeGroupId = groupId !== undefined ? groupId : null;
+    const result = await noiseDao.insertNoiseLog(noiseLevel, logTime, startTime, endTime, location, maxDb, safeUserId, safeGroupId);
     return result.insertId; // 추가된 noise log의 id 반환
 };
 

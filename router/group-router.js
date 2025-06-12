@@ -7,6 +7,7 @@ const router = express.Router();
 router.get('/groupList', groupController.getGroupsByUserId);    // 본인이 속한 그룹리스트 조회
 router.get('/info', groupController.getGroupInfo);  // group의 id로 특정 그룹 info 조회
 router.get('/isOwner', groupController.isOwner);    // 해당 그룹의 owner인지 조회
+router.get('/getGroupIdByWifi', groupController.getGroupIdByWifi) // 연결된 wifi의 bssid로 가입한 그룹의 아이디 반환
 
 router.post('/insertGroup', groupController.insertGroup);   // 그룹 생성
 

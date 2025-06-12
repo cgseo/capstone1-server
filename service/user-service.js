@@ -37,7 +37,7 @@ exports.login = async (email, password) => {
     // 가입되어있는 이메일인지 확인
     const isRegistered = await checkEmail(email);
     if(!isRegistered) {
-        const err = new Error("failed to login: email is not registerd");
+        const err = new Error("failed to login_email: email is not registerd");
         err.status = 401;
         throw err;
     }
@@ -48,7 +48,7 @@ exports.login = async (email, password) => {
     // 비밀번호 불일치 확인
     const isMatchWithDB = await comparePassword(password, hashedPWInDB);
     if (!isMatchWithDB) {   
-        const err = new Error("failed to login: unauthorized");
+        const err = new Error("failed to login_pass: unauthorized");
         err.status = 401;
         throw err;
     }

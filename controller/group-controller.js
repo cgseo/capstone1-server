@@ -45,6 +45,21 @@ exports.isOwner = async (req, res) => {
     }
 }
 
+// 연결된 wifi의 bssid로 가입한 그룹의 아이디 반환
+exports.getGroupIdByWifi = async (req, res) => {
+    const userId = req.query.userId;
+    const wifiBssid = req.query.wifiBssid;
+
+    try {
+        const result = await groupService.getGroupIdByWifi(userId, wifiBssid);
+        console.log("group_controller-wifi(userId, BSSID, groupId):", userId, wifiBssid, result);
+        res.json(result);
+    } catch (err) {
+        console.error('group_controller_wifi:', err.stack);
+        res.status(err.status || 500).json({message: err.message});
+    }
+};
+
 /* INSERT */
 // 그룹 생성
 exports.insertGroup = async (req, res) => {
@@ -52,9 +67,10 @@ exports.insertGroup = async (req, res) => {
     const description = req.body.description;
     const userId = req.body.user_id;
     const nickname = req.body.nickname;
+    const wifiBssid = req.body.wifi_bssid;
 
     try {
-        const insertId = await groupService.insertGroup(groupName, description, userId, nickname);
+        const insertId = await groupService.insertGroup(groupName, description, userId, nickname, wifiBssid);
         console.log("group-controller-insert: ", insertId);
         res.json(insertId);  // 생성한 그룹의 group_id 반환
     } catch (err) {

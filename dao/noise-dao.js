@@ -110,10 +110,10 @@ exports.checkGroupMembership = async (group_id, user_id) => {
 
 /* INSERT */
 // query로 받은 noise_log를 디비에 추가
-exports.insertNoiseLog = async (noiseLevel, logTime, startTime, endTime, location, maxDb, userId) => {
-  const sql = 'INSERT INTO `noise_log` (`noise_level`, `log_time`, `start_time`, `end_time`, `location`, `max_db`, `user_id`) '
-                          + 'VALUES(?, ?, ?, ?, ?, ?, ?)';
-  const [results] = await db.execute(sql, [noiseLevel, logTime, startTime, endTime, location, maxDb, userId]);
+exports.insertNoiseLog = async (noiseLevel, logTime, startTime, endTime, location, maxDb, userId, groupId) => {
+  const sql = 'INSERT INTO `noise_log` (`noise_level`, `log_time`, `start_time`, `end_time`, `location`, `max_db`, `user_id`, `group_id`) '
+                          + 'VALUES(?, ?, ?, ?, ?, ?, ?, ?)';
+  const [results] = await db.execute(sql, [noiseLevel, logTime, startTime, endTime, location, maxDb, userId, groupId]);
 
   return results;
 };
