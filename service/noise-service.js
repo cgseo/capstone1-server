@@ -126,19 +126,24 @@ exports.deleteNoiseLog = async (id) => {
 
 // 퇴실
 exports.groupOut = async (userId, groupId) => {
+    // 서비스 계층에서 받은 userId와 groupId를 로그로 출력
+    console.log('Service (groupOut): Attempting to remove member. userId:', userId, 'groupId:', groupId);
     try {
-        // 1. 데이터베이스에서 해당 사용자를 그룹에서 제거
         const result = await noiseDao.removeMemberFromGroup(userId, groupId);
+        // DAO 결과의 affectedRows 값을 로그로 출력
+        console.log('Service (groupOut): removeMemberFromGroup affectedRows:', result.affectedRows);
 
-        // 2. 제거된 데이터가 있는지 확인 (옵션)
         if (result.affectedRows === 0) {
-            throw new Error('User is not a member of this group.'); //  제거된 행이 없으면 에러 처리
+            // affectedRows가 0일 경우 에러 메시지 로그
+            console.warn('Service (groupOut): User is not a member of this group or already removed. userId:', userId, 'groupId:', groupId);
+            throw new Error('User is not a member of this group.');
         }
 
-        // 3. 결과 반환
+        console.log('Service (groupOut): Successfully removed from group. userId:', userId, 'groupId:', groupId);
         return { message: 'Successfully removed from the group', result };
     } catch (error) {
-        // 4. 오류 처리
+        // 서비스 계층에서 발생한 에러를 상세히 로그 출력
+        console.error('Service (groupOut) Error:', error.message, '\nStack:', error.stack);
         throw error;
     }
 };

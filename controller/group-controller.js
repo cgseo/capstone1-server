@@ -82,17 +82,51 @@ exports.insertGroup = async (req, res) => {
 
 /* DELETE */
 // 그룹 삭제
-exports.deleteGroup = async (req, res) => {
-    const userId = parseInt(req.query.userId);
-    const groupId = parseInt(req.query.groupId);
+exports.deleteGroup = async (req, res, next) => {
+    try {
+        // Android 앱에서 보낸 쿼리 파라미터 이름(user_id, group_id)과 일치하도록 수정
+        const userId = req.query.user_id; // <-- user_id로 변경
+        const groupId = req.query.group_id; // <-- group_id로 변경
 
-    try{
-        const affectedRows = await groupService.deleteGroup(userId, groupId);
-        console.log("group-controller-delete: ", affectedRows);
-        res.json(affectedRows); // 삭제된 행의 수 반환
-    } catch (err) {
-        console.error('group_controller_delete:', err.stack);
-        res.status(err.status || 500).json({message: err.message});
+        console.log(`[Controller] deleteGroup 요청 수신 - userId: ${userId}, groupId: ${groupId}`); // 디버깅 로그
+
+        // userId 또는 groupId가 null/undefined/빈 문자열인지 확인 (방어 코드)
+        if (!userId || !groupId) {
+            console.warn(`[Controller] deleteGroup - 필수 파라미터 누락: userId=${userId}, groupId=${groupId}`);
+            return res.status(400).json({ error: '사용자 ID 또는 그룹 ID가 필요합니다.' });
+        }
+
+        // 숫자 타입으로 변환 (데이터베이스가 숫자를 기대할 경우)
+        // 만약 ID가 문자열 UUID 등이라면 이 변환은 필요하지 않습니다.
+        // 현재 로그에서 '10'과 '8'은 숫자로 보이므로 parseInt를 사용합니다.
+        const parsedUserId = parseInt(userId, 10);
+        const parsedGroupId = parseInt(groupId, 10);
+
+        // NaN 여부 다시 확인
+        if (isNaN(parsedUserId) || isNaN(parsedGroupId)) {
+            console.warn(`[Controller] deleteGroup - 유효하지 않은 ID 형식: parsedUserId=${parsedUserId}, parsedGroupId=${parsedGroupId}`);
+            return res.status(400).json({ error: '유효하지 않은 사용자 ID 또는 그룹 ID 형식입니다.' });
+        }
+        
+        // 서비스 계층으로 올바르게 파싱된 숫자 ID 전달
+        const affectedRows = await groupService.deleteGroup(parsedUserId, parsedGroupId);
+
+        if (affectedRows > 0) {
+            console.log(`[Controller] 그룹 삭제 성공 - groupId: ${parsedGroupId}, affectedRows: ${affectedRows}`);
+            res.status(200).json({ message: '그룹 삭제 완료' });
+        } else {
+            console.warn(`[Controller] 그룹 삭제 실패 또는 그룹 없음 - groupId: ${parsedGroupId}, affectedRows: ${affectedRows}`);
+            res.status(404).json({ error: '그룹을 찾을 수 없거나 삭제 권한이 없습니다.' });
+        }
+    } catch (error) {
+        console.error(`[Controller] deleteGroup 오류: ${error.message}`);
+        // 에러 유형에 따라 다른 HTTP 상태 코드 반환
+        if (error.status) {
+            res.status(error.status).json({ error: error.message });
+        } else {
+            res.status(500).json({ error: '서버 내부 오류: ' + error.message });
+        }
+        // next(error); // Express 에러 핸들러로 전달하려면 이 주석을 해제
     }
 };
 

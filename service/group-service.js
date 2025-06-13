@@ -91,6 +91,7 @@ exports.insertGroup = async (groupName, description, userId, nickname, wifiBssid
 /* DELETE */
 // 그룹 삭제
 exports.deleteGroup = async (userId, groupId) => {
+     console.log(`[Service] deleteGroup 호출 - userId: ${userId}, groupId: ${groupId}`); // 추가
     // 삭제하려는 사용자가 그룹의 owner인지 확인
     const isOwnerResult = await isOwner(userId, groupId);
     if(!isOwnerResult) {  // owner가 아님

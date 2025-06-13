@@ -51,9 +51,13 @@ exports.getNoiseLogsByGroupId = async (req, res) => {
     try {
         const result = await noiseService.getNoiseLogsByGroupId(groupId);
         console.log('noise_controller-noises_group: ', groupId);
+        // 여기에 실제 결과값을 로그로 출력합니다.
+        // JSON.stringify를 사용하여 객체/배열 형태를 문자열로 변환하여 출력합니다.
+        console.log('noise_controller-noises_group 응답 데이터:', JSON.stringify(result)); // <-- 이 줄 추가
+
         res.json(result);
-    } catch (err) { 
-        console.error('noise_controller-noises_group: ', err.stack);
+    } catch (err) {
+        console.error('noise_controller-noises_group 오류: ', err.stack);
         res.status(err.status || 500).json({message: err.message});
     }
 }
