@@ -28,7 +28,7 @@ exports.getMaxDecibelsForMonth = async (userId, year, month) => {
   return results;
 };
 
-// 특정 그룹에 속한 그룹원들의 최근 30분 이내 기록된 noise_log(noise_level, max_db) list
+// 특정 그룹에 속한 그룹원들이 해당 그룹원으로서 최근 30분 이내 기록된 noise_log(noise_level, max_db) list
 // +members 정보(user_id, nickname, is_online) 조회
 exports.getNoiseLogsByGroupId = async (groupId) => {
   // a == 특정 그룹에 속한 member들의 정보(user_id, nickname, is_online)
@@ -37,14 +37,14 @@ exports.getNoiseLogsByGroupId = async (groupId) => {
 	  +'INNER JOIN `users` ON `group_members`.`user_id` = `users`.`id` '
 	  +'WHERE `group_members`.`group_id` = ?)'
     +', `ranked` as (SELECT `noise_level`, `max_db`, `user_id`, ' 
-    // ranked == 멤버별 최근 30분 이내에 기록된 noise_log들을 최신순으로 나열
+    // ranked == 멤버별 최근 30분 이내에 해당 그룹원으로서 기록된 noise_log들을 최신순으로 나열
 	  +'ROW_NUMBER() OVER (PARTITION BY `user_id` ORDER BY `end_time` DESC) AS `row_n` '
-	  +'FROM `noise_log` WHERE `end_time` >= NOW() - INTERVAL 30 MINUTE)'
+	  +'FROM `noise_log` WHERE `group_id`=? AND `end_time` >= NOW() - INTERVAL 30 MINUTE)'
     // b == 멤버별 최근 30분 이내에 기론된 noise_log들 중 가장 최신 noise_log
     +', `b` as (SELECT * FROM `ranked` WHERE `row_n` = 1 )'
     // member 정보 + noise_log 정보 left join해서 list 조회
  +'SELECT `a`.*, `b`.`noise_level`, `b`.`max_db` FROM `a` LEFT JOIN `b` ON `a`.`user_id`=`b`.`user_id`';
-  const [results] = await db.execute(sql, [groupId]);
+  const [results] = await db.execute(sql, [groupId, groupId]);
   return results;
 };
 
