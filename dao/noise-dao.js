@@ -39,7 +39,7 @@ exports.getNoiseLogsByGroupId = async (groupId) => {
     +', `ranked` as (SELECT `noise_level`, `max_db`, `user_id`, ' 
     // ranked == 멤버별 최근 30분 이내에 해당 그룹원으로서 기록된 noise_log들을 최신순으로 나열
 	  +'ROW_NUMBER() OVER (PARTITION BY `user_id` ORDER BY `end_time` DESC) AS `row_n` '
-	  +'FROM `noise_log` WHERE `group_id`=? AND `end_time` >= NOW() - INTERVAL 30 MINUTE)'
+	  +'FROM `noise_log` WHERE `group_id`=? AND `end_time` >= UTC_TIMESTAMP() - INTERVAL 30 MINUTE)'
     // b == 멤버별 최근 30분 이내에 기론된 noise_log들 중 가장 최신 noise_log
     +', `b` as (SELECT * FROM `ranked` WHERE `row_n` = 1 )'
     // member 정보 + noise_log 정보 left join해서 list 조회
@@ -142,9 +142,8 @@ exports.addMemberToGroup = async (invite_code, nickname,user_id, wifi_bssid) => 
         const groupId = rows[0].id;
         
         // group_members 테이블에 사용자 추가
-        const query = 'INSERT INTO group_members (group_id, nickname, user_id, is_owner, wifi_bssid) VALUES (?, ?, ?, ?, ?)';
-        await db.query(query, [groupId, nickname, user_id, 0, wifi_bssid]);
-        
+        const query = 'INSERT INTO group_members (group_id, nickname,user_id, wifi_bssid) VALUES (?, ?, ?, ?)';
+        const [result] = await db.query(query, [groupId, nickname, user_id, wifi_bssid]);
         return groupId;  // r가입된 그룹의 ID를 반환
     } catch (err) {
         console.error('DAO addMemberToGroup error: ', err.stack);
