@@ -34,10 +34,11 @@ exports.isOwner = isOwner;
 
 // 연결된 wifi의 bssid로 가입한 그룹의 아이디 반환
 exports.getGroupIdByWifi = async (userId, wifiBssid) => {
-    const result = await groupDao.getGroupIdByWifi(userId, wifiBssid);
+    const results = await groupDao.getGroupIdByWifi(userId, wifiBssid);
     
-    return result[0];
+    return results; // [{ group_id: X }] 또는 [] 형태를 반환
 };
+
 
 /* INSERT */
 // 그룹 생성

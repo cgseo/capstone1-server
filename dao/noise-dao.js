@@ -128,7 +128,7 @@ exports.addUserToGroup = async (group_id, user_id) => {
 };
 
 // 그룹에 사용자 추가(nickname 추가)
-exports.addMemberToGroup = async (invite_code, nickname,user_id) => {
+exports.addMemberToGroup = async (invite_code, nickname,user_id, wifi_bssid) => {
  // console.log('addMemberToGroup 함수가 호출되었습니다.', { invite_code, nickname });
     try {
         // 그룹 ID를 초대 코드로 찾기
@@ -142,10 +142,10 @@ exports.addMemberToGroup = async (invite_code, nickname,user_id) => {
         const groupId = rows[0].id;
         
         // group_members 테이블에 사용자 추가
-        const query = 'INSERT INTO group_members (group_id, nickname,user_id) VALUES (?, ?, ?)';
-        const [result] = await db.query(query, [groupId, nickname, user_id]);
+        const query = 'INSERT INTO group_members (group_id, nickname, user_id, is_owner, wifi_bssid) VALUES (?, ?, ?, ?, ?)';
+        await db.query(query, [groupId, nickname, user_id, 0, wifi_bssid]);
         
-        return result;  // 추가된 결과 반환
+        return groupId;  // r가입된 그룹의 ID를 반환
     } catch (err) {
         console.error('DAO addMemberToGroup error: ', err.stack);
         throw err;

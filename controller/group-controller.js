@@ -47,16 +47,26 @@ exports.isOwner = async (req, res) => {
 
 // 연결된 wifi의 bssid로 가입한 그룹의 아이디 반환
 exports.getGroupIdByWifi = async (req, res) => {
-    const userId = req.query.userId;
-    const wifiBssid = req.query.wifiBssid;
+    const { userId, wifiBssid } = req.query;
 
     try {
-        const result = await groupService.getGroupIdByWifi(userId, wifiBssid);
-        console.log("group_controller-wifi(userId, BSSID, groupId):", userId, wifiBssid, result);
-        res.json(result);
+        const results = await groupService.getGroupIdByWifi(userId, wifiBssid); // DAO에서 [{ group_id: X }] 또는 [] 반환
+
+        let groupId = null; // 기본값을 null로 설정
+
+        if (results && results.length > 0) {
+            groupId = results[0].group_id; // 배열의 첫 번째 객체에서 group_id를 추출
+        }
+
+        // 디버깅 로그 강화: 클라이언트에 보낼 최종 groupId 값 확인
+        console.log(`group_controller-wifi(userId, BSSID, finalGroupId): ${userId} ${wifiBssid} ${groupId}`);
+
+        // 클라이언트가 파싱할 수 있도록 JSON 형태로 응답
+        res.status(200).json({ groupId: groupId }); // null이거나 실제 ID 값이거나
+
     } catch (err) {
-        console.error('group_controller_wifi:', err.stack);
-        res.status(err.status || 500).json({message: err.message});
+        console.error('group_controller-getGroupIdByWifi: ', err.stack);
+        res.status(err.status || 500).json({ message: err.message || '서버 오류: Wi-Fi 그룹 ID를 가져오는 데 실패했습니다.' });
     }
 };
 
