@@ -39,7 +39,7 @@ exports.getPasswordByEmail = async (email) => {
 exports.signUp = async (email, password) => {
   const sql = 'INSERT INTO `users` (`email`, `password`, `is_online`) '
                             + 'VALUES(?, ?, ?)';
-  const [results] = await db.execute(sql, [email, password, 1]);
+  const [results] = await db.execute(sql, [email, password, 0]);
   
   return results;
 };

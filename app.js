@@ -37,6 +37,7 @@ app.use('/api/noise', noiseRouter);
 app.use('/api/user', userRouter);
 app.use('/api/group', groupRouter);
 
+
 // 서버 실행
 app.listen(app.get('port'), '0.0.0.0', () => {
   console.log('익스프레스 서버 실행');

@@ -39,7 +39,7 @@ exports.getNoiseLogsByGroupId = async (groupId) => {
     +', `ranked` as (SELECT `noise_level`, `max_db`, `user_id`, ' 
     // ranked == 멤버별 최근 30분 이내에 해당 그룹원으로서 기록된 noise_log들을 최신순으로 나열
 	  +'ROW_NUMBER() OVER (PARTITION BY `user_id` ORDER BY `end_time` DESC) AS `row_n` '
-	  +'FROM `noise_log` WHERE `group_id`=? AND `end_time` >= UTC_TIMESTAMP() - INTERVAL 30 MINUTE)'
+	  +'FROM `noise_log` WHERE `group_id`=? AND `end_time` >= now() - INTERVAL 30 MINUTE)'
     // b == 멤버별 최근 30분 이내에 기론된 noise_log들 중 가장 최신 noise_log
     +', `b` as (SELECT * FROM `ranked` WHERE `row_n` = 1 )'
     // member 정보 + noise_log 정보 left join해서 list 조회
