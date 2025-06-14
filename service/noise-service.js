@@ -93,7 +93,7 @@ exports.joinGroup = async (invite_code, name) => {
 
 
 // 그룹가입(invite_code, nickname)
-exports.joinGroupWithNickname = async (invite_code, nickname, user_id) => {
+exports.joinGroupWithNickname = async (invite_code, nickname, user_id, wifi_bssid) => {
     try {
         // 1. 초대 코드 유효성 검사
         const group = await noiseDao.getGroupByInviteCode(invite_code);
@@ -102,7 +102,7 @@ exports.joinGroupWithNickname = async (invite_code, nickname, user_id) => {
         }
 
         // 3. group_members 테이블에 사용자 추가
-        const result = await noiseDao.addMemberToGroup(invite_code, nickname,user_id);
+        const result = await noiseDao.addMemberToGroup(invite_code, nickname,user_id, wifi_bssid);
 
         // 4. 결과 반환
         return { message: 'Successfully joined the group', invite_code, nickname };

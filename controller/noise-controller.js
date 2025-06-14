@@ -181,14 +181,14 @@ exports.joinGroup = async (req, res) => {
 
 //그룹가입(invite_code,nickname)
 exports.groupnickname = async (req, res) => {
-    const { invite_code, nickname, user_id } = req.body;
+    const { invite_code, nickname, user_id, wifi_bssid } = req.body;
 
   //  console.log('Received invite_code:', invite_code);  // 디버깅용 로그
    // console.log('Received nickname:', nickname);        // 디버깅용 로그
 
     try {
         // 서비스 호출
-        const result = await noiseService.joinGroupWithNickname(invite_code, nickname, user_id);
+        const result = await noiseService.joinGroupWithNickname(invite_code, nickname, user_id, wifi_bssid);
         
         // 성공 시 응답
         res.status(200).json(result);
